@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import dotenv from "dotenv";
 import http, { Server } from "http";
-import app from "./app";
-import { prisma } from "./config/db";
+import app from "./app.js";
+import { prisma } from "./config/db.js";
 
 dotenv.config();
 
@@ -31,4 +32,42 @@ async function startServer() {
   }
 }
 
-startServer();
+async function gracefulShutdown(signal: string) {
+  console.warn(`Received ${signal}. Shutting down gracefully...`);
+  if (server) {
+    server.close(async (_err: any) => {
+      console.log("Closed out remaining connections.");
+      try {
+        console.log("Disconnecting from database...");
+        await prisma.$disconnect();
+      } catch (err) {
+        console.error("Error during database disconnection:", err);
+      }
+      process.exit(0);
+    });
+  } else {
+    process.exit(0);
+  }
+}
+
+function handleProcessEvents() {
+  process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+  process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+
+  process.on("uncaughtException", (error) => {
+    console.error("💥 Uncaught Exception:", error);
+    gracefulShutdown("uncaughtException");
+  });
+
+  process.on("unhandledRejection", (reason) => {
+    console.error("💥 Unhandled Rejection:", reason);
+    gracefulShutdown("unhandledRejection");
+  });
+}
+
+async function init() {
+  await startServer();
+  await handleProcessEvents();
+}
+
+init();

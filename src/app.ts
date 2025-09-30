@@ -1,6 +1,6 @@
 import compression from "compression";
 import cors from "cors";
-import express, { Application, NextFunction } from "express";
+import express, { type Application, type NextFunction } from "express";
 
 const app: Application = express();
 
