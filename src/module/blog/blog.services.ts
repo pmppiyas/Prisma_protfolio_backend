@@ -35,8 +35,22 @@ const getByBlogId = async (id: number) => {
   return result;
 };
 
+const updateBlog = async (id: number, payload: Prisma.BlogsUpdateInput) => {
+  const result = await prisma.$transaction(async (tx) => {
+    const update = tx.blogs.update({
+      where: {
+        id,
+      },
+      data: payload,
+    });
+    return update;
+  });
+  return result;
+};
+
 export const BlogServices = {
   createBlog,
   getAllBlogs,
   getByBlogId,
+  updateBlog,
 };
