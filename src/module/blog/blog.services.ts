@@ -9,6 +9,12 @@ const createBlog = async (blogData: Prisma.BlogsCreateInput) => {
   return newBlog;
 };
 
+const getAllBlogs = async () => {
+  const blogs = await prisma.blogs.findMany();
+  return blogs;
+};
+
 export const BlogServices = {
   createBlog,
+  getAllBlogs,
 };
