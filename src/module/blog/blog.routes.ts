@@ -6,5 +6,6 @@ router.post("/create", BlogController.createPost);
 router.get("/", BlogController.getAllBlogs);
 router.get("/:id", BlogController.getByBlogId);
 router.patch("/update/:id", BlogController.updateBlog);
+router.delete("/delete/:id", BlogController.deleteBlog);
 
 export const BlogRoutes = router;
