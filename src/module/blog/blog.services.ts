@@ -15,12 +15,24 @@ const getAllBlogs = async () => {
 };
 
 const getByBlogId = async (id: number) => {
-  const blog = await prisma.blogs.findUnique({
-    where: {
-      id,
-    },
+  const result = await prisma.$transaction(async (tx) => {
+    const blog = await tx.blogs.findUnique({
+      where: { id },
+    });
+
+    await tx.blogs.update({
+      where: {
+        id,
+      },
+      data: {
+        views: {
+          increment: 1,
+        },
+      },
+    });
+    return blog;
   });
-  return blog;
+  return result;
 };
 
 export const BlogServices = {
